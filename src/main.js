@@ -12,6 +12,7 @@ import { createHeroArt } from "./illo.js";
 import { createFooter, roll } from "./footer.js";
 import { createPortrait } from "./portrait.js";
 import { createToolkit } from "./toolkit.js";
+import { createGraph } from "./graph.js";
 
 gsap.registerPlugin(
   ScrollTrigger, ScrollSmoother, SplitText, DrawSVGPlugin, Flip,
@@ -73,14 +74,12 @@ function init() {
   setupLens();
   intro(art.parts, portrait);
   marquee();
-  dive();
+  createGraph(document.querySelector(".graph"), { reduce });
   about();
   workRail();
   caseStudies();
   toolkit();
-  experience();
   footer();
-  stamps();
   anchors();
   magnetic();
 
@@ -222,7 +221,6 @@ function intro(P, portraitReady) {
   }
   const by = (n) => (i) => (i >> 1) * n;
   const [hChars, mChars] = pair(hero, ".ch");
-  const [hSeal, mSeal] = pair(hero, ".seal");
   const [hFoot, mFoot] = pair(hero, ".hero__foot > *");
   const tl = gsap.timeline({ defaults: { ease: "expo.out" }, paused: true });
 
@@ -249,10 +247,6 @@ function intro(P, portraitReady) {
   tl.from(P.reach, { drawSVG: 0, duration: 1.1, ease: "power3.inOut" }, 1.5)
     .from(P.joints, { scale: 0, transformOrigin: "50% 50%", duration: 0.4, ease: "back.out(3)", stagger: by(0.12) }, 1.7);
 
-  // 5. ...and the finished painting gets signed.
-  const seal = { scale: 3.4, rotate: -50, opacity: 0, duration: 0.3, ease: "power4.in" };
-  tl.from(hSeal, seal, 3.6).from(mSeal, seal, 3.6);
-  tl.to([hChars, mChars], { y: 6, duration: 0.06, ease: "power1.out", yoyo: true, repeat: 1 }, 3.9);
 
   const foot = { y: 20, opacity: 0, duration: 1, stagger: 0.1 };
   tl.from(hFoot, foot, 3.4).from(mFoot, foot, 3.4);
@@ -294,21 +288,6 @@ function marquee() {
           onComplete: () => gsap.to(l, { timeScale: dir, duration: 1.2, ease: "power2.out" }),
         });
       });
-    },
-  });
-}
-
-/* ── scroll into the machine ───────────────────────────── */
-
-function dive() {
-  const sec = document.querySelector(".statement");
-  ScrollTrigger.create({
-    trigger: sec,
-    start: "top top",
-    end: "+=120%",
-    pin: true,
-    onUpdate: (self) => {
-      sec._dive = gsap.utils.clamp(0, 1, self.progress / 0.7);
     },
   });
 }
@@ -397,8 +376,11 @@ function caseStudies() {
       .map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`)
       .join("");
     titleEl.textContent = title;
-    overlay.querySelector(".case__live").href = plate.dataset.live;
-    overlay.querySelector(".case__repo").href = plate.dataset.repo;
+    for (const [sel, url] of [[".case__live", plate.dataset.live], [".case__repo", plate.dataset.repo]]) {
+      const a = overlay.querySelector(sel);
+      a.hidden = !url;
+      if (url) a.href = url;
+    }
 
     const fig = btn.querySelector(".art");
     btn.style.height = `${btn.offsetHeight}px`;
@@ -461,65 +443,11 @@ function toolkit() {
   }, 250));
 }
 
-/* ── experience rows ───────────────────────────────────── */
-
-function experience() {
-  const sec = document.querySelector(".exp");
-  const [hr, mr] = pair(sec, ".exp__list li");
-  if (!reduce) {
-    const rows = { y: 40, opacity: 0, duration: 0.9, ease: "expo.out", stagger: 0.08 };
-    const st = { trigger: sec, start: "top 70%" };
-    gsap.from(hr, { ...rows, scrollTrigger: st });
-    gsap.from(mr, { ...rows, scrollTrigger: { ...st } });
-  }
-  hr.forEach((li) => {
-    const role = li.querySelector(".exp__role");
-    const text = role.textContent;
-    li.addEventListener("mouseenter", () => {
-      if (!reduce) gsap.to(role, { duration: 0.6, scrambleText: { text, chars: "◇◆○●□■", speed: 0.6 } });
-    });
-  });
-}
-
 /* ── footer ────────────────────────────────────────────── */
 
 function footer() {
   createFooter(document.querySelector(".footer"), { reduce, smoother });
   document.querySelectorAll(".bar a").forEach((a) => roll(a));
-}
-
-/* ── click anywhere to stamp the paper ─────────────────── */
-
-function stamps() {
-  const initials = document.body.dataset.initials || "";
-  const placed = [];
-
-  addEventListener("click", (e) => {
-    if (e.target.closest("a, button, input, textarea, .case, .portrait")) return;
-    const sec = e.target.closest("[data-lens]");
-    if (!sec) return;
-    const layer = sec.querySelector(".layer.human");
-    const rect = layer.getBoundingClientRect();
-
-    const el = document.createElement("div");
-    el.className = "stamp";
-    el.setAttribute("aria-hidden", "true");
-    el.innerHTML = [...initials].map((c) => `<span>${c}</span>`).join("");
-    el.style.left = `${e.clientX - rect.left}px`;
-    el.style.top = `${e.clientY - rect.top}px`;
-    layer.appendChild(el);
-    placed.push(el);
-
-    const rot = gsap.utils.random(-24, 24);
-    if (reduce) gsap.set(el, { rotate: rot, opacity: 0.9 });
-    else
-      gsap.fromTo(el, { scale: 2.6, rotate: rot - 30, opacity: 0 }, { scale: 1, rotate: rot, opacity: 0.9, duration: 0.2, ease: "power4.in" });
-
-    if (placed.length > 14) {
-      const old = placed.shift();
-      gsap.to(old, { opacity: 0, scale: 0.9, duration: 0.4, onComplete: () => old.remove() });
-    }
-  });
 }
 
 /* ── in-page links go through the smoother ─────────────── */

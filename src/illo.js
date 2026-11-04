@@ -34,7 +34,6 @@ export function createHeroArt(hero) {
     ctx && ctx.revert();
     hosts.forEach((h) => h.replaceChildren());
     const hr = hero.getBoundingClientRect();
-    const seal = hero.querySelector(".human .seal").getBoundingClientRect();
     const name = hero.querySelector(".human .line--back").getBoundingClientRect();
     const portrait = hero.querySelector(".human .portrait").getBoundingClientRect();
     const foot = hero.querySelector(".human .hero__foot").getBoundingClientRect();
@@ -43,7 +42,6 @@ export function createHeroArt(hero) {
       w: hero.clientWidth,
       h: hero.clientHeight,
       meet: [portrait.left + portrait.width / 2 - hr.left, portrait.top + portrait.height * 0.62 - hr.top],
-      seal: [seal.left + seal.width / 2 - hr.left, seal.top + seal.height / 2 - hr.top],
       portrait: box(portrait),
       name: box(name),
       foot: box(foot),
@@ -78,7 +76,7 @@ export function createHeroArt(hero) {
   return api;
 }
 
-function draw(hosts, { w: W, h: H, meet, seal, portrait, name, foot }) {
+function draw(hosts, { w: W, h: H, meet, portrait, name, foot }) {
   const R = rng(11);
   const pick = (a) => a[(R() * a.length) | 0];
   const port = W < H * 0.9;
@@ -208,7 +206,7 @@ function draw(hosts, { w: W, h: H, meet, seal, portrait, name, foot }) {
   cluster(0.0 * W, 0.2 * H, 3, 46 * k);
   cluster(0.2 * W, 1.0 * H, 2, 38 * k);
 
-  // The reaching tendril, ending just short of the seal.
+  // The reaching tendril, reaching in behind the portrait.
   const tip = [portrait.l + (portrait.r - portrait.l) * 0.16, meet[1]];
   stem([0.12 * W, 0.78 * H], [0.24 * W, 0.86 * H], [tip[0] - 0.14 * W, tip[1] + 0.06 * H], tip, 2.2, {
     reach: true, end: false, flowers: false, start: 30, scale: k * 0.8,
@@ -284,7 +282,7 @@ function draw(hosts, { w: W, h: H, meet, seal, portrait, name, foot }) {
     radii.forEach((r) => add("lines", mk("circle", { cx: ox, cy: oy, r, class: "orbit" }, os)));
   });
 
-  // The reaching arm: bones and joints, ending just short of the seal.
+  // The reaching arm: bones and joints, reaching in behind the portrait.
   const tipM = [portrait.r - (portrait.r - portrait.l) * 0.16, meet[1]];
   const joints = [
     [W + 12, 0.86 * H],
@@ -305,9 +303,6 @@ function draw(hosts, { w: W, h: H, meet, seal, portrait, name, foot }) {
 
   /* ── moving things (no filter, so they stay cheap) ──── */
 
-  // Plumb line from the name down to the meeting point, and a halo.
-  const halo = mk("circle", { cx: seal[0], cy: seal[1], r: 46, class: "halo au" }, fx);
-  add("halo", halo);
 
   function compass(x, y, r) {
     const outer = mk("g", { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})` }, fx);

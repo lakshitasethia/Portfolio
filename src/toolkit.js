@@ -23,15 +23,22 @@ const FIGURES = [
     }
     return { name: "A flower", pts, edges, ax: 1 };
   })(),
-  {
-    name: "Your initials",
-    pts: [
-      [-0.95, -0.95], [-0.95, -0.32], [-0.95, 0.32], [-0.95, 0.95], [-0.3, 0.95],
-      [0.92, -0.72], [0.45, -0.98], [0.04, -0.62], [0.4, -0.06], [0.86, 0.34], [0.62, 0.86], [0.1, 0.94],
-    ],
-    edges: [...chain(0, 4), ...chain(5, 11)],
-    ax: 1.25,
-  },
+  (() => {
+    // an atom: a nucleus and three tilted elliptical orbits
+    const pts = [[0, 0]];
+    const edges = [];
+    [[0, 4], [Math.PI / 3, 4], [-Math.PI / 3, 3]].forEach(([tilt, k]) => {
+      const start = pts.length;
+      for (let i = 0; i < k; i++) {
+        const a = (i / k) * Math.PI * 2 + 0.4;
+        const x = Math.cos(a), y = Math.sin(a) * 0.36;
+        pts.push([x * Math.cos(tilt) - y * Math.sin(tilt), (x * Math.sin(tilt) + y * Math.cos(tilt)) * 1.05]);
+      }
+      for (let i = 0; i < k; i++) edges.push([start + i, start + ((i + 1) % k)]);
+    });
+    edges.push([0, 1], [0, 5], [0, 9]);
+    return { name: "An atom", pts, edges, ax: 1 };
+  })(),
   (() => {
     const pts = [];
     for (let k = 0; k < 6; k++) {
