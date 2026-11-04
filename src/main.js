@@ -84,6 +84,21 @@ function init() {
   anchors();
   magnetic();
 
+  // Content can change height after first layout (fonts, images, the canvas
+  // portrait, fitted type). Re-measure so the smooth scroller always reaches
+  // the very bottom of the footer.
+  const content = document.querySelector("#smooth-content") || document.body;
+  let lastH = content.offsetHeight;
+  new ResizeObserver(debounce(() => {
+    const h = content.offsetHeight;
+    if (Math.abs(h - lastH) > 2) {
+      lastH = h;
+      ScrollTrigger.refresh();
+      lastH = content.offsetHeight;
+    }
+  }, 250)).observe(content);
+  addEventListener("load", () => ScrollTrigger.refresh());
+
   import("./bloom.js").then(({ createBloom }) => createBloom(document.querySelector(".about"), bloomState));
 
   let lastW = innerWidth;
