@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lakshita Sethia</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="description" content="Lakshita Sethia: graphics and physical simulation, full stack and machine learning. Mumbai." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body data-initials="LS">
+    <a class="skip" href="#work">Skip to work</a>
+
+    <header class="bar">
+      <a href="#top" class="bar__name">Lakshita Sethia</a>
+      <nav aria-label="Primary">
+        <a href="#about">About</a>
+        <a href="#work">Work</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <div class="ring" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- Case study overlay (Flip target) -->
+    <div class="case" role="dialog" aria-modal="true" aria-labelledby="case-title" hidden>
+      <div class="case__media"></div>
+      <div class="case__body">
+        <p class="case__meta"></p>
+        <h2 id="case-title" class="case__title"></h2>
+        <p class="case__text"></p>
+        <dl class="case__facts"></dl>
+        <div class="case__links">
+          <a class="case__live btn" target="_blank" rel="noopener">Open the live site</a>
+          <a class="case__repo" target="_blank" rel="noopener">Source on GitHub</a>
+        </div>
+        <button class="case__close" type="button">Close</button>
+      </div>
+    </div>
+
+    <div id="smooth-wrapper">
+      <div id="smooth-content">
+        <main>
+          <!-- HERO ───────────────────────────────────────── -->
+          <section class="world hero" id="top" data-lens>
+            <div class="layer human">
+              <div class="illo" aria-hidden="true"></div>
+
+              <h1 class="name" aria-label="Lakshita Sethia">
+                <span class="line line--back" data-spec="Bodoni Moda 500">Lakshita</span>
+                <span class="line line--front" data-spec="Bodoni Moda 500 italic">Sethia</span>
+              </h1>
+
+              <figure class="portrait" data-spec="portrait · canvas 2D">
+                <canvas role="img" aria-label="Pencil portrait of Lakshita that draws itself and fills with watercolour."></canvas>
+                <div class="seal">
+                  <span>L</span><span>S</span>
+                </div>
+              </figure>
+
+              <div class="hero__foot">
+                <p class="intro" data-spec="p · Schibsted Grotesk">
+                  I build things that have to agree with physics, like GPU renderers and wave solvers,
+                  and the systems real people sit in front of all day.
+                </p>
+                <p class="hint">
+                  <span class="hint--fine">Hover the painting to bring back the real colours. Everywhere else, the lens shows the blueprint.</span>
+                  <span class="hint--coarse">Drag across the painting to bring back the real colours.</span>
+                </p>
+              </div>
+
+              <p class="m-only note note--a">// grid 24 / 120 · cyanotype #23407d</p>
+              <p class="m-only note note--b">// lens r = 130px, eased 0.18 per frame</p>
+            </div>
+          </section>
+
+          <!-- MARQUEE ────────────────────────────────────── -->
+          <section class="world marquee" data-lens aria-label="What I do">
+            <div class="layer human">
+              <div class="marquee__row">
+                <div class="marquee__track">
+                  <span>Path tracing</span><i class="flor"></i><em>Wave solvers</em><i class="flor"></i><span>Full stack</span><i class="flor"></i><em>Machine learning</em><i class="flor"></i><span>Voice agents</span><i class="flor"></i><em>Hackathons</em><i class="flor"></i>
+                </div>
+              </div>
+              <div class="marquee__row marquee__row--rev">
+                <div class="marquee__track">
+                  <em>GLSL</em><i class="gear"></i><span>WebGL2</span><i class="gear"></i><em>Three.js</em><i class="gear"></i><span>FastAPI</span><i class="gear"></i><em>Supabase</em><i class="gear"></i><span>Benchmarks</span><i class="gear"></i>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- STATEMENT / DIVE ───────────────────────────── -->
+          <section class="world statement" data-lens>
+            <div class="layer human">
+              <p class="statement__text" data-spec="p · Bodoni Moda 400">
+                I write renderers because a picture is the only proof the maths was right.
+              </p>
+              <p class="m-only note note--c">// Lo(x, ωo) = Le(x, ωo) + ∫Ω fr · Li · (n · ωi) dωi</p>
+              <p class="m-only note note--d">// you're inside the machine now</p>
+            </div>
+          </section>
+
+          <!-- ABOUT + 3D BLOOM ───────────────────────────── -->
+          <section class="world about" id="about" data-lens>
+            <div class="layer human">
+              <div class="about__stage" data-spec="canvas · three.js"></div>
+              <div class="about__copy">
+                <h2 class="about__title" data-spec="h2 · Bodoni Moda 500">A little about me</h2>
+                <p class="about__text">
+                  I simulate light two ways: Luminae treats it as a ray, Huygens as a field. When
+                  nothing needs solving, I build the software around real work: hospital records,
+                  faculty careers, and a Hindi voice agent that books trucks.
+                </p>
+                <dl class="about__now">
+                  <div><dt>Building</dt><dd>Huygens and Sanchay</dd></div>
+                  <div><dt>Learning</dt><dd>GLSL, numerical methods and ML systems</dd></div>
+                  <div><dt>Competing</dt><dd>Codeforces, and a lot of hackathons</dd></div>
+                  <div><dt>Based in</dt><dd>Mumbai, India</dd></div>
+                </dl>
+              </div>
+              <p class="m-only note note--f">// petals: 26 · segments 10×14 · open = scroll</p>
+            </div>
+          </section>
+
+          <!-- WORK ───────────────────────────────────────── -->
+          <section class="world work" id="work" data-lens aria-label="Selected work">
+            <div class="layer human">
+              <div class="track">
+                <div class="work__head">
+                  <h2 data-spec="h2 · Bodoni Moda 500">Selected work</h2>
+                  <p>Renderers, simulators and the systems around them. Open a plate for the full story, or hold the lens over it to see how it was put together.</p>
+                </div>
+
+                <article class="plate" data-case="Luminae|Graphics, WebGL2 · 2026|A real-time progressive path tracer that runs inside a single WebGL2 fragment shader. Soft shadows, colour bleeding, caustics and Fresnel edges are never special-cased; they fall out of solving the rendering equation. The whole scene lives in the URL, so any view you land on can be shared.|Stack:WebGL2, GLSL, Three.js;Method:Monte Carlo path tracing;Materials:Lambertian, mirror, exact Fresnel glass;Renders:Noise to clean in about a second" data-live="https://luminae-one-puce.vercel.app" data-repo="https://github.com/lakshitasethia/Luminae">
+                  <button class="plate__open" type="button" aria-label="Open Luminae case study">
+                    <figure class="art" data-spec="plate · 4:5">
+                      <svg viewBox="0 0 400 500" aria-hidden="true">
+                        <rect class="f-paper" width="400" height="500" />
+                        <rect class="f-paper2" x="0" y="0" width="400" height="360" />
+                        <path class="f-sepia" d="M0 360 H400 V500 H0Z" />
+                        <rect class="f-gold" x="140" y="0" width="120" height="16" />
+                        <g class="s-gold"><path d="M200 16 L118 272 L20 360" /><path d="M200 16 L262 236 L392 318" /><path d="M170 16 L300 352" /></g>
+                        <ellipse class="f-ink" cx="122" cy="364" rx="46" ry="8" opacity="0.3" />
+                        <ellipse class="f-ink" cx="274" cy="364" rx="62" ry="9" opacity="0.3" />
+                        <circle class="f-sanguine" cx="120" cy="316" r="46" />
+                        <circle class="f-blue" cx="272" cy="298" r="62" opacity="0.85" />
+                        <circle class="f-paper2" cx="250" cy="276" r="13" />
+                        <g class="construct"><circle cx="120" cy="316" r="70" /><circle cx="272" cy="298" r="86" /><line x1="0" y1="360" x2="400" y2="360" /><line x1="200" y1="0" x2="200" y2="500" /></g>
+                      </svg>
+                    </figure>
+                  </button>
+                  <h3>Luminae</h3>
+                  <p class="meta">Graphics, WebGL2 · 2026</p>
+                </article>
+
+                <article class="plate" data-case="Huygens|Physical simulation · 2026|A real-time electromagnetic wave simulator that integrates Maxwell's curl equations on a 2D Yee lattice, entirely on the GPU. Refraction, interference fringes, diffraction and dispersion come out of the maths, not shader tricks. Shift-drag paints new material into the domain and the wave reacts immediately.|Stack:WebGL2, GLSL, Three.js;Method:FDTD on a Yee lattice;Companion to:Luminae (light as a ray);Status:In progress" data-live="https://huygens-kappa.vercel.app" data-repo="https://github.com/lakshitasethia/Huygens">
+                  <button class="plate__open" type="button" aria-label="Open Huygens case study">
+                    <figure class="art" data-spec="plate · 4:5">
+                      <svg viewBox="0 0 400 500" aria-hidden="true">
+                        <rect class="f-paper" width="400" height="500" />
+                        <g class="s-blue"><line x1="40" y1="90" x2="40" y2="410" /><line x1="72" y1="90" x2="72" y2="410" /><line x1="104" y1="90" x2="104" y2="410" /><line x1="136" y1="90" x2="136" y2="410" /><line x1="168" y1="90" x2="168" y2="410" /></g>
+                        <path class="f-gold" d="M200 110 L300 390 L200 390Z" />
+                        <g class="s-sanguine"><path d="M300 170 A110 110 0 0 1 300 390" /><path d="M330 150 A140 140 0 0 1 330 410" /><path d="M360 130 A170 170 0 0 1 360 430" /></g>
+                        <g class="s-sage"><path d="M314 200 A90 90 0 0 1 314 380" /><path d="M346 186 A118 118 0 0 1 346 396" /></g>
+                        <g class="construct"><line x1="0" y1="100" x2="400" y2="100" /><line x1="0" y1="200" x2="400" y2="200" /><line x1="0" y1="300" x2="400" y2="300" /><line x1="0" y1="400" x2="400" y2="400" /><line x1="100" y1="0" x2="100" y2="500" /><line x1="200" y1="0" x2="200" y2="500" /><line x1="300" y1="0" x2="300" y2="500" /></g>
+                      </svg>
+                    </figure>
+                  </button>
+                  <h3>Huygens</h3>
+                  <p class="meta">Physical simulation · 2026</p>
+                </article>
+
+                <article class="plate" data-case="Wellora|Healthcare, full stack + ML · 2026|A hospital management system built on one append-only patient record. Instead of alert pop-ups that get dismissed, clinical risk reorders each clinician's worklist, and access is enforced by the database rather than the browser.|Stack:React 19, Supabase, FastAPI, scikit-learn;Record:One append-only EMR for every role;Risk model:Served as a live API;Data:Synthetic patients" data-live="https://medtech-wellora.vercel.app" data-repo="https://github.com/lakshitasethia/Medtech-Wellora">
+                  <button class="plate__open" type="button" aria-label="Open Wellora case study">
+                    <figure class="art" data-spec="plate · 4:5">
+                      <svg viewBox="0 0 400 500" aria-hidden="true">
+                        <rect class="f-paper" width="400" height="500" />
+                        <path class="s-sanguine s-thick" d="M40 70 H140 L160 36 L182 104 L204 50 L220 70 H360" />
+                        <rect class="f-paper2" x="60" y="130" width="280" height="54" /><rect class="f-sanguine" x="60" y="130" width="12" height="54" />
+                        <rect class="f-paper2" x="60" y="198" width="280" height="54" /><rect class="f-gold" x="60" y="198" width="12" height="54" />
+                        <rect class="f-paper2" x="60" y="266" width="280" height="54" /><rect class="f-gold" x="60" y="266" width="12" height="54" />
+                        <rect class="f-paper2" x="60" y="334" width="280" height="54" /><rect class="f-sage" x="60" y="334" width="12" height="54" />
+                        <rect class="f-paper2" x="60" y="402" width="280" height="54" /><rect class="f-sage" x="60" y="402" width="12" height="54" />
+                        <g class="s-ink-thin"><line x1="92" y1="150" x2="230" y2="150" /><line x1="92" y1="166" x2="180" y2="166" /><line x1="92" y1="218" x2="250" y2="218" /><line x1="92" y1="286" x2="200" y2="286" /><line x1="92" y1="354" x2="240" y2="354" /><line x1="92" y1="422" x2="170" y2="422" /></g>
+                        <g class="construct"><line x1="60" y1="0" x2="60" y2="500" /><line x1="340" y1="0" x2="340" y2="500" /><line x1="0" y1="70" x2="400" y2="70" /></g>
+                      </svg>
+                    </figure>
+                  </button>
+                  <h3>Wellora</h3>
+                  <p class="meta">Healthcare, full stack + ML · 2026</p>
+                </article>
+
+                <article class="plate" data-case="Sanchay|Faculty careers, full stack · 2026|A career platform for university faculty. It turns the work a professor already does, from papers and mail to calendar entries and certificates, into one academic record, so appraisals and promotion dossiers are generated from it instead of typed into it.|Stack:Python, JavaScript, PostgreSQL;Built for:SIH internal hackathon;Core idea:One record that fills itself;Team:Group build" data-live="https://ggw-sih-internal-hackathon.vercel.app" data-repo="https://github.com/darved2305/Sanchay">
+                  <button class="plate__open" type="button" aria-label="Open Sanchay case study">
+                    <figure class="art" data-spec="plate · 4:5">
+                      <svg viewBox="0 0 400 500" aria-hidden="true">
+                        <rect class="f-paper" width="400" height="500" />
+                        <circle class="s-gold s-dash" cx="200" cy="250" r="150" />
+                        <circle class="f-sanguine" cx="200" cy="100" r="14" /><circle class="f-blue" cx="350" cy="250" r="14" /><circle class="f-sage" cx="200" cy="400" r="14" /><circle class="f-gold" cx="50" cy="250" r="14" />
+                        <rect class="f-paper2" x="134" y="182" width="120" height="150" transform="rotate(-8 194 257)" />
+                        <rect class="f-paper2" x="146" y="176" width="120" height="150" transform="rotate(5 206 251)" />
+                        <g class="s-ink-thin"><line x1="166" y1="206" x2="244" y2="212" /><line x1="164" y1="226" x2="240" y2="232" /><line x1="162" y1="246" x2="230" y2="251" /><line x1="160" y1="266" x2="236" y2="272" /></g>
+                        <rect class="f-sanguine" x="214" y="288" width="34" height="34" rx="4" transform="rotate(-8 231 305)" />
+                        <g class="construct"><circle cx="200" cy="250" r="110" /><line x1="200" y1="100" x2="200" y2="400" /><line x1="50" y1="250" x2="350" y2="250" /></g>
+                      </svg>
+                    </figure>
+                  </button>
+                  <h3>Sanchay</h3>
+                  <p class="meta">Faculty careers, full stack · 2026</p>
+                </article>
+
+                <article class="plate" data-case="IndicDocBench|ML evaluation · 2026|A reproducible benchmark for how well vision-language models read Indian GST documents, and what each one costs per 1,000 documents. It reports how models fail, not just how often: omissions against hallucinations, how accuracy drops as images degrade, and whether a gap between two models is real or noise.|Corpus:384 seeded variants;Scoring:Four-outcome error taxonomy;Statistics:Clustered bootstrap CIs;Stack:Python" data-live="https://lakshitasethia.github.io/indic-doc-bench/" data-repo="https://github.com/lakshitasethia/indic-doc-bench">
+                  <button class="plate__open" type="button" aria-label="Open IndicDocBench case study">
+                    <figure class="art" data-spec="plate · 4:5">
+                      <svg viewBox="0 0 400 500" aria-hidden="true">
+                        <rect class="f-paper" width="400" height="500" />
+                        <rect class="f-paper2" x="80" y="50" width="240" height="290" />
+                        <rect class="f-ink" x="100" y="72" width="120" height="14" />
+                        <rect class="f-gold" x="240" y="70" width="60" height="18" />
+                        <g class="s-ink-thin"><line x1="100" y1="110" x2="300" y2="110" /><line x1="100" y1="150" x2="300" y2="150" /><line x1="100" y1="190" x2="300" y2="190" /><line x1="100" y1="230" x2="300" y2="230" /><line x1="100" y1="270" x2="300" y2="270" /><line x1="180" y1="110" x2="180" y2="270" /><line x1="250" y1="110" x2="250" y2="270" /></g>
+                        <rect class="f-sanguine" x="100" y="300" width="80" height="14" />
+                        <rect class="f-gold" x="96" y="400" width="40" height="70" /><rect class="f-sanguine" x="156" y="380" width="40" height="90" /><rect class="f-blue" x="216" y="420" width="40" height="50" /><rect class="f-sage" x="276" y="392" width="40" height="78" />
+                        <g class="s-ink"><path d="M116 386 V414 M108 386 H124 M108 414 H124" /><path d="M176 366 V394 M168 366 H184 M168 394 H184" /><path d="M236 408 V432 M228 408 H244 M228 432 H244" /><path d="M296 378 V406 M288 378 H304 M288 406 H304" /></g>
+                        <g class="construct"><line x1="0" y1="470" x2="400" y2="470" /><line x1="80" y1="0" x2="80" y2="500" /><line x1="320" y1="0" x2="320" y2="500" /></g>
+                      </svg>
+                    </figure>
+                  </button>
+                  <h3>IndicDocBench</h3>
+                  <p class="meta">ML evaluation · 2026</p>
+                </article>
+
+                <article class="plate" data-case="Bhaada|Voice AI · 2026|A Hindi voice agent that books trucks for Indian transporters. One call describes the load; Bhaada then phones the truck owners in parallel, bargains with each of them in Hindi, and collects the vehicle and driver details.|Built on:Bolna;Event:Bolna x Symphony Buildathon 2026;Stack:TypeScript, Node;Language:Hindi" data-live="https://bhaada.vercel.app" data-repo="https://github.com/lakshitasethia/Bolna_AI">
+                  <button class="plate__open" type="button" aria-label="Open Bhaada case study">
+                    <figure class="art" data-spec="plate · 4:5">
+                      <svg viewBox="0 0 400 500" aria-hidden="true">
+                        <rect class="f-paper" width="400" height="500" />
+                        <g class="s-blue"><path d="M96 92 A40 40 0 0 1 96 172" /><path d="M120 72 A66 66 0 0 1 120 192" /><path d="M144 52 A92 92 0 0 1 144 212" /></g>
+                        <rect class="f-ink" x="40" y="104" width="40" height="64" rx="8" />
+                        <path class="f-sepia" d="M0 420 H400 V500 H0Z" />
+                        <rect class="f-gold" x="60" y="270" width="190" height="120" />
+                        <path class="f-sanguine" d="M250 300 H310 L350 340 V390 H250Z" />
+                        <rect class="f-paper2" x="266" y="312" width="40" height="30" />
+                        <circle class="f-ink" cx="110" cy="400" r="24" /><circle class="f-ink" cx="300" cy="400" r="24" />
+                        <circle class="f-paper2" cx="110" cy="400" r="8" /><circle class="f-paper2" cx="300" cy="400" r="8" />
+                        <g class="construct"><line x1="0" y1="420" x2="400" y2="420" /><circle cx="60" cy="136" r="120" /></g>
+                      </svg>
+                    </figure>
+                  </button>
+                  <h3>Bhaada</h3>
+                  <p class="meta">Voice AI · 2026</p>
+                </article>
+
+                <div class="work__end">
+                  <p>Fifty public repos and counting.</p>
+                  <a href="https://github.com/lakshitasethia" target="_blank" rel="noopener">See everything on GitHub</a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TOOLKIT PLAYGROUND ─────────────────────────── -->
+          <section class="toolkit" aria-labelledby="toolkit-title">
+            <div class="toolkit__head">
+              <h2 id="toolkit-title">Things I work with</h2>
+              <p>Throw one and the rest will rearrange into a new shape. Run your cursor across a string to cut it.</p>
+            </div>
+            <ul class="toolkit__pit">
+              <li class="sticker s--seal">GLSL</li>
+              <li class="sticker s--pill">Three.js</li>
+              <li class="sticker s--flower">WebGL2</li>
+              <li class="sticker s--pill s--gold">TypeScript</li>
+              <li class="sticker s--seal s--sage">Python</li>
+              <li class="sticker s--ticket">React</li>
+              <li class="sticker s--pill s--blue">FastAPI</li>
+              <li class="sticker s--flower s--gold">Supabase</li>
+              <li class="sticker s--ticket s--sage">PostgreSQL</li>
+              <li class="sticker s--seal s--blue">C</li>
+              <li class="sticker s--pill">scikit-learn</li>
+              <li class="sticker s--ticket s--blue">Node</li>
+            </ul>
+            <p class="toolkit__caption" aria-live="polite"></p>
+          </section>
+
+          <!-- EXPERIENCE ─────────────────────────────────── -->
+          <section class="world exp" data-lens aria-labelledby="exp-title">
+            <div class="layer human">
+              <h2 id="exp-title" class="exp__title" data-spec="h2 · Bodoni Moda 500">More I've built</h2>
+              <ol class="exp__list">
+                <li><a href="https://github.com/lakshitasethia/JARVIS" target="_blank" rel="noopener"><span class="exp__year">Nov 2026</span><span class="exp__role">JARVIS</span><span class="exp__place">A voice assistant for macOS with tools and memory</span></a></li>
+                <li><a href="https://credence-wine.vercel.app" target="_blank" rel="noopener"><span class="exp__year">Oct 2026</span><span class="exp__role">Credence</span><span class="exp__place">Your bank statement as a Wrapped-style money story</span></a></li>
+                <li><a href="https://musafir-tan.vercel.app" target="_blank" rel="noopener"><span class="exp__year">Sep 2026</span><span class="exp__role">Musafir</span><span class="exp__place">A trip planner that repairs your day when plans break</span></a></li>
+                <li><a href="https://lanternkeep-teal.vercel.app" target="_blank" rel="noopener"><span class="exp__year">Sep 2026</span><span class="exp__role">Lanternkeep</span><span class="exp__place">A life RPG where you buy the light back</span></a></li>
+                <li><a href="https://github.com/lakshitasethia/Hiver" target="_blank" rel="noopener"><span class="exp__year">Sep 2026</span><span class="exp__role">Support agent</span><span class="exp__place">A transparent AI support agent, built for Hiver</span></a></li>
+                <li><a href="https://github.com/lakshitasethia/AsliKamai" target="_blank" rel="noopener"><span class="exp__year">Sep 2026</span><span class="exp__role">AsliKamai</span><span class="exp__place">What India's gig workers actually earn, after costs</span></a></li>
+                <li><a href="https://quack-draw.vercel.app" target="_blank" rel="noopener"><span class="exp__year">Jun 2026</span><span class="exp__role">Quack.Draw</span><span class="exp__place">Draw in the air with your finger, and an AI guesses</span></a></li>
+                <li><a href="https://ascii-art-sage.vercel.app" target="_blank" rel="noopener"><span class="exp__year">May 2026</span><span class="exp__role">ASCII.CAM</span><span class="exp__place">Your webcam, live, as ASCII art</span></a></li>
+              </ol>
+            </div>
+          </section>
+        </main>
+
+        <!-- FOOTER / CONTACT ───────────────────────────── -->
+        <footer class="footer" id="contact">
+          <div class="ft__guides" aria-hidden="true"><i></i><i></i></div>
+
+          <section class="ft__cta" aria-labelledby="ft-title">
+            <h2 id="ft-title" class="ft__title">Let's build something that has to work</h2>
+            <p class="ft__sub">Internships, research roles, hackathon teams, or just a good problem.</p>
+            <div class="ft__actions">
+              <a class="ft-btn magnetic" href="mailto:luxsethia@gmail.com">
+                <span class="ft-btn__fill"></span>
+                <span class="ft-btn__label">Write to me</span>
+                <span class="ft-btn__arrow"><span class="ft-btn__a1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" /></svg></span><span class="ft-btn__a2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" /></svg></span></span>
+              </a>
+              <button class="ft-btn ft-btn--ghost copy magnetic" type="button">
+                <span class="ft-btn__fill"></span>
+                <span class="ft-btn__label">Copy email</span>
+              </button>
+            </div>
+            <p class="ft__coords" aria-hidden="true">[0,0]</p>
+          </section>
+
+          <div class="ft__art">
+            <svg class="scene" viewBox="0 0 800 440" role="img" aria-label="A pencil sketch of a small rendered scene: a cube and two spheres on a floor grid, lit by a red sun. Move the cursor to move the sun."></svg>
+            <div class="ft__cross" aria-hidden="true"><i></i><i></i></div>
+          </div>
+
+          <div class="ft__grid">
+            <div class="cell cell--lead"><p class="ft__lead">Renderers, simulators and the systems around them.</p></div>
+            <nav class="cell" aria-label="Footer">
+              <h3>Pages</h3>
+              <a href="#top">Home</a><a href="#about">About</a><a href="#work">Work</a><a href="#contact">Contact</a>
+            </nav>
+            <div class="cell">
+              <h3>Work</h3>
+              <a href="https://luminae-one-puce.vercel.app" target="_blank" rel="noopener">Luminae</a><a href="https://huygens-kappa.vercel.app" target="_blank" rel="noopener">Huygens</a><a href="https://medtech-wellora.vercel.app" target="_blank" rel="noopener">Wellora</a><a href="https://ggw-sih-internal-hackathon.vercel.app" target="_blank" rel="noopener">Sanchay</a>
+            </div>
+            <div class="cell">
+              <h3>Elsewhere</h3>
+              <a href="https://github.com/lakshitasethia" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/lakshita-sethia-35b789341/" target="_blank" rel="noopener">LinkedIn</a><a href="https://codeforces.com/profile/lakshitasethia" target="_blank" rel="noopener">Codeforces</a>
+            </div>
+            <div class="cell cell--logo"><svg class="iso" viewBox="0 0 260 280" aria-hidden="true"></svg></div>
+            <div class="cell">
+              <h3>Local time</h3>
+              <p class="clock">--:--</p>
+              <p class="ft__small">Mumbai, India Standard Time</p>
+            </div>
+            <div class="cell">
+              <h3>Based in</h3>
+              <p class="ft__big">Mumbai,<br />India</p>
+            </div>
+            <div class="cell">
+              <h3>Email</h3>
+              <a class="ft__mail" href="mailto:luxsethia@gmail.com">luxsethia@gmail.com</a>
+            </div>
+            <div class="cell cell--top">
+              <h3>Back to top</h3>
+              <button class="totop magnetic" type="button" aria-label="Back to top">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="ft__ruler" aria-hidden="true"><span>+</span><span>+</span></div>
+          <div class="ft__giant">
+            <p class="giant" aria-label="Lakshita Sethia">Lakshita Sethia</p>
+            <svg class="giant__guides" aria-hidden="true"></svg>
+          </div>
+          <div class="ft__base">
+            <p>© 2026 Lakshita Sethia</p>
+            <p>Built by hand with GSAP and three.js. Click the paper to leave a stamp.</p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
