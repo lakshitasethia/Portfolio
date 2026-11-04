@@ -46,7 +46,7 @@ function init() {
 
   // Anything that splits or duplicates DOM must happen before the layers are cloned.
   SplitText.create(".hero .name .line", { type: "chars", charsClass: "ch" });
-  SplitText.create(".about__text", { type: "lines", linesClass: "ln" });
+  SplitText.create(".about__text p", { type: "lines", linesClass: "ln" });
   document.querySelectorAll(".marquee__track").forEach((t) => (t.innerHTML += t.innerHTML));
 
   document.querySelectorAll("[data-lens]").forEach((sec) => {

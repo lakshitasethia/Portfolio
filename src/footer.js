@@ -1,4 +1,4 @@
-// Blueprint footer: a double-slit experiment drawn like an engineering plate,
+// Blueprint footer: the CSS box model drawn as an exploded axonometric,
 // an isometric monogram, LEXI drawn as construction letters, and rolling-text
 // hover effects on every link.
 
@@ -56,111 +56,128 @@ function buttons(root, reduce) {
   });
 }
 
-/* ── Young's double slit, drawn like an engineering plate ── */
+/* ── the CSS box model, exploded like an architectural axonometric ── */
 
-function slit(svg, reduce) {
+function boxModel(svg, reduce) {
   svg.replaceChildren();
-  const C = 190; // optical axis
-  const SX = 110, BX = 330, SCX = 640; // source, barrier, screen
-  const state = { lam: 22, d: 64, phase: 0 };
+  const c = Math.cos(Math.PI / 6), s = 0.5;
+  const OX = 300, OY = 236;
+  // x runs down-right, z runs down-left, y is height
+  const P = (x, z, y) => [OX + (x - z) * c, OY + (x + z) * s - y];
+  const LAYERS = [
+    { key: "margin", w: 300, d: 210, fill: "#e08d74", css: "margin: 32px;" },
+    { key: "border", w: 236, d: 146, inset: 32, fill: "#e2b86c", css: "border: 6px solid;" },
+    { key: "padding", w: 224, d: 134, inset: 6, fill: "#8c9c7f", css: "padding: 24px;" },
+    { key: "content", w: 176, d: 86, inset: 24, fill: "#6f93d6", css: "width: 176px;" },
+  ];
+  const state = { gap: 34, hover: -1 };
+  const T = 7; // plate thickness
+
   const g = mk("g", {}, svg);
-  const lines = [];
-  const L = (d, cls = "d") => {
-    const e = mk("path", { d, class: cls }, g);
-    lines.push(e);
+  const guides = mk("g", { class: "bm-guides" }, g);
+  const plates = LAYERS.map((L, i) => {
+    const grp = mk("g", { class: "bm-plate", "data-i": i }, g);
+    const sideR = mk("path", { class: "bm-side" }, grp);
+    const sideL = mk("path", { class: "bm-side bm-side--dark" }, grp);
+    const top = mk("path", { class: "bm-top", fill: L.fill, "fill-rule": "evenodd" }, grp);
+    return { L, grp, top, sideL, sideR };
+  });
+
+  // labels + leader lines on the right, and the CSS on the far right
+  const labels = LAYERS.map((L) => {
+    const lead = mk("path", { class: "bm-lead" }, g);
+    const dot = mk("circle", { r: 3.5, class: "bm-dot" }, g);
+    const text = mk("text", { class: "bm-label" }, g);
+    text.textContent = L.key;
+    return { lead, dot, text };
+  });
+  const code = mk("g", { class: "bm-code", transform: "translate(676 132)" }, g);
+  const codeLines = [".card {", ...LAYERS.map((L) => "  " + L.css), "}"].map((t, i) => {
+    const e = mk("text", { x: 0, y: i * 26, class: "bm-codeline" }, code);
+    e.textContent = t;
     return e;
+  });
+
+  // plates are centred: each one is inset inside the previous
+  const rect = (L) => {
+    const x0 = -L.w / 2, z0 = -L.d / 2;
+    return [x0, z0, x0 + L.w, z0 + L.d];
   };
-
-  // construction
-  L(`M30 ${C} H780`, "d-faint");
-  L(`M${BX} 20 V360 M${SCX} 20 V360`, "d-faint");
-  L(`M${BX} 352 H${SCX} M${BX} 346 V358 M${SCX} 346 V358`);
-  mk("text", { x: (BX + SCX) / 2, y: 345, "text-anchor": "middle", class: "d-label" }, g).textContent = "L";
-  for (const [x, y] of [[SX, C], [BX, 30], [SCX, 30], [SCX, 350], [BX, 350]])
-    L(`M${x - 6} ${y} H${x + 6} M${x} ${y - 6} V${y + 6}`);
-
-  // source: the red sun
-  const sun = mk("circle", { cx: SX, cy: C, r: 46, class: "d-sun" }, g);
-
-  // plane wavefronts between source and barrier
-  const plane = mk("path", { class: "d-wave" }, g);
-
-  // circular wavefronts from each slit, clipped to the space after the barrier
-  const clip = mk("clipPath", { id: "slit-clip" }, mk("defs", {}, svg));
-  mk("rect", { x: BX, y: 20, width: SCX - BX, height: 340 }, clip);
-  const arcs = mk("path", { class: "d-wave", "clip-path": "url(#slit-clip)" }, g);
-
-  // barrier with two slits
-  const barrier = mk("path", { class: "d-barrier" }, g);
-  const dimD = mk("path", { class: "d" }, g);
-  const dLabel = mk("text", { class: "d-label" }, g);
-  dLabel.textContent = "d";
-
-  // screen, fringes and the intensity curve
-  L(`M${SCX} 30 V350`, "d-thick");
-  const fringes = mk("g", {}, g);
-  const bars = Array.from({ length: 64 }, (_, i) => mk("rect", { x: SCX + 4, y: 30 + i * 5, width: 12, height: 5, class: "d-fringe" }, fringes));
-  const curve = mk("path", { class: "d-intensity" }, g);
-  const lamLabel = mk("text", { x: 220, y: 54, "text-anchor": "middle", class: "d-label" }, g);
-  const eqLabel = mk("text", { x: 700, y: 30, class: "d-label d-label--eq" }, g);
-  eqLabel.textContent = "Δy = λL / d";
-  const dyLabel = mk("text", { x: 700, y: 46, class: "d-label" }, g);
+  const quad = (pts) => "M" + pts.map((p) => p.map((v) => v.toFixed(1)).join(" ")).join("L") + "Z";
 
   function render() {
-    const { lam, d, phase } = state;
-    const s1 = C - d / 2, s2 = C + d / 2, gap = 7;
-    // plane waves
-    let p = "";
-    for (let x = SX + 50 + (phase % lam); x < BX; x += lam) p += `M${x.toFixed(1)} ${C - 120} V${C + 120}`;
-    plane.setAttribute("d", p);
-    // arcs
-    let a = "";
-    for (const sy of [s1, s2])
-      for (let r = phase % lam; r < 360; r += lam)
-        if (r > 2) a += `M${BX} ${sy - r} A${r} ${r} 0 0 1 ${BX} ${sy + r}`;
-    arcs.setAttribute("d", a);
-    barrier.setAttribute("d", `M${BX} 40 V${s1 - gap} M${BX} ${s1 + gap} V${s2 - gap} M${BX} ${s2 + gap} V340`);
-    dimD.setAttribute("d", `M${BX - 22} ${s1} V${s2} M${BX - 28} ${s1} H${BX - 16} M${BX - 28} ${s2} H${BX - 16}`);
-    dLabel.setAttribute("x", BX - 40);
-    dLabel.setAttribute("y", C + 4);
-    // intensity on the screen: two-slit pattern under a single-slit envelope
-    const Ld = SCX - BX;
-    let c = "";
-    bars.forEach((b, i) => {
-      const y = 30 + i * 5 + 2.5 - C;
-      const th = Math.atan2(y, Ld);
-      const beta = (Math.PI * 14 * Math.sin(th)) / lam;
-      const env = beta === 0 ? 1 : (Math.sin(beta) / beta) ** 2;
-      const I = Math.cos((Math.PI * d * Math.sin(th)) / lam) ** 2 * env;
-      b.setAttribute("opacity", (0.08 + 0.92 * I).toFixed(3));
+    let gd = "";
+    plates.forEach(({ L, top, sideL, sideR }, i) => {
+      const y = i * state.gap;
+      const [x0, z0, x1, z1] = rect(L);
+      const outer = [P(x0, z0, y), P(x1, z0, y), P(x1, z1, y), P(x0, z1, y)];
+      let d = quad(outer);
+      if (i < LAYERS.length - 1) {
+        const N = LAYERS[i + 1];
+        const [a0, b0, a1, b1] = rect(N);
+        d += quad([P(a0, b0, y), P(a1, b0, y), P(a1, b1, y), P(a0, b1, y)]);
+      }
+      top.setAttribute("d", d);
+      sideR.setAttribute("d", quad([P(x1, z0, y), P(x1, z1, y), P(x1, z1, y - T), P(x1, z0, y - T)]));
+      sideL.setAttribute("d", quad([P(x0, z1, y), P(x1, z1, y), P(x1, z1, y - T), P(x0, z1, y - T)]));
+      // dashed construction lines from this plate's corners down to the one below
+      if (i > 0) {
+        const below = (i - 1) * state.gap;
+        for (const [x, z] of [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]) {
+          const [ax, ay] = P(x, z, y), [bx, by] = P(x, z, below);
+          gd += `M${ax.toFixed(1)} ${ay.toFixed(1)}L${bx.toFixed(1)} ${by.toFixed(1)}`;
+        }
+      }
+      // label at the plate's right-hand corner
+      const [cx, cy] = P(x1, z0, y);
+      const lab = labels[i];
+      const lx = 600, ly = cy - 4;
+      lab.dot.setAttribute("cx", cx);
+      lab.dot.setAttribute("cy", cy);
+      lab.lead.setAttribute("d", `M${cx} ${cy}L${lx - 10} ${ly}H${lx - 4}`);
+      lab.text.setAttribute("x", lx);
+      lab.text.setAttribute("y", ly + 4);
     });
-    for (let y = 30; y <= 350; y += 2) {
-      const th = Math.atan2(y - C, Ld);
-      const beta = (Math.PI * 14 * Math.sin(th)) / lam;
-      const env = beta === 0 ? 1 : (Math.sin(beta) / beta) ** 2;
-      const I = Math.cos((Math.PI * d * Math.sin(th)) / lam) ** 2 * env;
-      c += `${y === 30 ? "M" : "L"}${(SCX + 24 + I * 120).toFixed(1)} ${y}`;
-    }
-    curve.setAttribute("d", c);
-    lamLabel.textContent = `λ = ${lam.toFixed(1)}`;
-    dyLabel.textContent = `Δy = ${((lam * Ld) / d).toFixed(0)}`;
+    guides.replaceChildren();
+    mk("path", { d: gd, class: "bm-guide" }, guides);
   }
   render();
+  const fitTop = () => {
+    // keep the stack inside the viewBox as it grows
+    const lift = Math.max(0, (LAYERS.length - 1) * state.gap - 110);
+    g.setAttribute("transform", `translate(0 ${lift.toFixed(1)})`);
+  };
+  fitTop();
+
+  function highlight(k) {
+    state.hover = k;
+    plates.forEach((p, i) => p.grp.classList.toggle("is-dim", k >= 0 && i !== k));
+    plates.forEach((p, i) => p.grp.classList.toggle("is-on", i === k));
+    labels.forEach((l, i) => l.text.classList.toggle("is-on", i === k));
+    codeLines.forEach((t, i) => t.classList.toggle("is-on", i - 1 === k));
+  }
 
   if (!reduce) {
-    gsap.to(state, { phase: 1e4, duration: 1e4 / 26, ease: "none", repeat: -1, onUpdate: render });
     const art = svg.closest(".ft__art");
     const cross = art.querySelectorAll(".ft__cross i");
+    const toGap = gsap.quickTo(state, "gap", { duration: 0.9, ease: "power3", onUpdate: () => (render(), fitTop()) });
     art.addEventListener("pointermove", (e) => {
       const r = art.getBoundingClientRect();
-      const u = gsap.utils.clamp(0, 1, (e.clientX - r.left) / r.width);
-      const v = gsap.utils.clamp(0, 1, (e.clientY - r.top) / r.height);
-      gsap.to(state, { lam: 12 + u * 26, d: 40 + v * 70, duration: 0.8, ease: "power3", overwrite: "auto" });
+      toGap(16 + gsap.utils.clamp(0, 1, (e.clientX - r.left) / r.width) * 44);
       gsap.set(cross[0], { y: e.clientY - r.top });
       gsap.set(cross[1], { x: e.clientX - r.left });
     });
+    art.addEventListener("pointerleave", () => (toGap(34), highlight(-1)));
+    plates.forEach((p, i) => {
+      p.grp.addEventListener("pointerenter", () => highlight(i));
+      p.grp.addEventListener("pointerleave", () => highlight(-1));
+    });
+    labels.forEach((l, i) => {
+      l.text.addEventListener("pointerenter", () => highlight(i));
+      l.text.addEventListener("pointerleave", () => highlight(-1));
+    });
   }
-  return { lines, sun, waves: [plane, arcs], curve, bars };
+  return { plates: plates.map((p) => p.grp), labels: labels.flatMap((l) => [l.lead, l.text, l.dot]), code: codeLines };
 }
 
 /* ── isometric extruded monogram, like an architect's mark ── */
@@ -181,7 +198,7 @@ function iso(svg, reduce) {
   const c = Math.cos(Math.PI / 6), sn = 0.5;
   // isometric: x runs up-right, y runs down, depth z runs up-left
   const proj = (x, y, z) => [(x - z) * c, y - (x + z) * sn];
-  const state = { D: 30 };
+  const state = { D: 34 };
   const parts = [];
   // farther solid first: S sits behind L in this view
   const solids = glyphs
@@ -232,22 +249,18 @@ function iso(svg, reduce) {
   render();
   // fit the viewBox around the deepest extrusion we animate to
   const save = state.D;
-  state.D = 56;
   render();
   const bb = svg.getBBox();
   svg.setAttribute("viewBox", `${bb.x - 8} ${bb.y - 8} ${bb.width + 16} ${bb.height + 16}`);
   state.D = save;
   render();
 
-  if (!reduce) {
-    const tl = gsap.timeline({ paused: true })
-      .to(state, { D: 56, duration: 0.9, ease: "elastic.out(1, 0.5)", onUpdate: render })
-      .to(parts[1], { y: -10, duration: 0.6, ease: "expo.out" }, 0)
-      .to(parts[0], { y: -4, duration: 0.6, ease: "expo.out" }, 0.05);
-    const cell = svg.closest(".cell");
-    cell.addEventListener("mouseenter", () => tl.play());
-    cell.addEventListener("mouseleave", () => tl.reverse());
-  }
+  // hover a face to paint it, the way Heron's mark does
+  if (!reduce)
+    svg.querySelectorAll(".iso-face").forEach((f) => {
+      f.addEventListener("pointerenter", () => gsap.to(f, { fill: "#c9624a", duration: 0.25, ease: "power2.out" }));
+      f.addEventListener("pointerleave", () => gsap.to(f, { fill: "#f7efe6", duration: 0.5, ease: "power2.inOut" }));
+    });
   return { faces: [...svg.querySelectorAll(".iso-face")] };
 }
 
@@ -291,7 +304,7 @@ function lexi(svg, reduce) {
   });
   const dOf = (pts) => "M" + pts.map((p) => p.map((v) => v.toFixed(1)).join(" ")).join("L") + "Z";
 
-  // ink mask: a turbulence-displaced circle (the ink) with a hole the cursor drags
+  // ink mask: a turbulence-displaced circle, so the blot has a ragged edge
   const defs = mk("defs", {}, svg);
   const filter = mk("filter", { id: "lexi-ink", x: "-30%", y: "-30%", width: "160%", height: "160%" }, defs);
   mk("feTurbulence", { type: "fractalNoise", baseFrequency: "0.012 0.015", numOctaves: 4, seed: 5, result: "noise" }, filter);
@@ -299,11 +312,13 @@ function lexi(svg, reduce) {
   mk("feGaussianBlur", { stdDeviation: 3, result: "blurred" }, filter);
   const ct = mk("feComponentTransfer", { in: "blurred" }, filter);
   mk("feFuncA", { type: "linear", slope: 2.2, intercept: -0.6 }, ct);
-  const mask = mk("mask", { id: "lexi-mask", maskUnits: "userSpaceOnUse", x: -padX, y: -padY, width: VW, height: VH }, defs);
-  const inkG = mk("g", { filter: "url(#lexi-ink)" }, mask);
   const cx = total / 2, cy = H / 2, full = Math.hypot(VW, VH) * 0.62;
-  const ink = mk("circle", { cx, cy, r: 0, fill: "#fff" }, inkG);
-  const hole = mk("circle", { cx, cy, r: 0, fill: "#000" }, inkG);
+  const blob = (id) => {
+    const m = mk("mask", { id, maskUnits: "userSpaceOnUse", x: -padX, y: -padY, width: VW, height: VH }, defs);
+    return mk("circle", { cx, cy, r: 0, fill: "#fff" }, mk("g", { filter: "url(#lexi-ink)" }, m));
+  };
+  const ink = blob("lexi-mask");
+  const fringe = blob("lexi-fringe");
 
   // 1. construction drawing
   const sketch = mk("g", { class: "lx-sketch" }, svg);
@@ -329,24 +344,26 @@ function lexi(svg, reduce) {
   line(cx - 4 * U, cy, cx + 4 * U, cy);
   line(cx, cy - 4 * U, cx, cy + 4 * U);
 
-  // 2. solid ink letters, through the mask
+  // 2. solid letters, only where the ink blot is: a grey fringe, then ink
+  const grey = mk("g", { class: "lx-solid lx-solid--fringe", mask: "url(#lexi-fringe)" }, svg);
   const solid = mk("g", { class: "lx-solid", mask: "url(#lexi-mask)" }, svg);
-  shapes.flat().forEach((pts) => mk("path", { d: dOf(pts) }, solid));
+  shapes.flat().forEach((pts) => (mk("path", { d: dOf(pts) }, grey), mk("path", { d: dOf(pts) }, solid)));
+  const cursor = mk("rect", { width: 9 * U / 2, height: 9 * U / 2, class: "lx-cursor", opacity: 0 }, svg);
 
-  if (reduce) {
-    ink.setAttribute("r", full);
-    return { strokes, ink: null, full };
-  }
+  if (reduce) return { strokes, full };
 
-  // the cursor wipes the ink off and shows the drawing underneath
+  // the cursor carries a blot of ink that turns the drawing solid beneath it
   const local = (e) => {
     const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM().inverse());
     return [p.x, p.y];
   };
   const pos = { x: cx, y: cy };
-  const paint = () => (hole.setAttribute("cx", pos.x), hole.setAttribute("cy", pos.y));
-  const hx = gsap.quickTo(pos, "x", { duration: 0.6, ease: "power3", onUpdate: paint });
-  const hy = gsap.quickTo(pos, "y", { duration: 0.6, ease: "power3", onUpdate: paint });
+  const paint = () => {
+    for (const c of [ink, fringe]) c.setAttribute("cx", pos.x), c.setAttribute("cy", pos.y);
+  };
+  const hx = gsap.quickTo(pos, "x", { duration: 0.45, ease: "power3", onUpdate: paint });
+  const hy = gsap.quickTo(pos, "y", { duration: 0.45, ease: "power3", onUpdate: paint });
+  const R = 46 * U;
   const band = svg.closest(".ft__mark");
   band.addEventListener("pointerenter", (e) => {
     const [px, py] = local(e);
@@ -355,22 +372,29 @@ function lexi(svg, reduce) {
     hx(px, px);
     hy(py, py);
     paint();
-    gsap.to(hole, { attr: { r: 34 * U }, duration: 0.8, ease: "expo.out", overwrite: "auto" });
+    gsap.to(ink, { attr: { r: R }, duration: 0.9, ease: "expo.out", overwrite: "auto" });
+    gsap.to(fringe, { attr: { r: R * 1.22 }, duration: 1.1, ease: "expo.out", overwrite: "auto" });
+    gsap.to(cursor, { opacity: 1, duration: 0.2 });
   });
   band.addEventListener("pointermove", (e) => {
     const [px, py] = local(e);
     hx(px);
     hy(py);
+    cursor.setAttribute("x", px - (9 * U) / 4);
+    cursor.setAttribute("y", py - (9 * U) / 4);
   });
-  band.addEventListener("pointerleave", () => gsap.to(hole, { attr: { r: 0 }, duration: 0.8, ease: "expo.inOut", overwrite: "auto" }));
+  band.addEventListener("pointerleave", () => {
+    gsap.to([ink, fringe], { attr: { r: 0 }, duration: 0.7, ease: "expo.inOut", overwrite: "auto" });
+    gsap.to(cursor, { opacity: 0, duration: 0.2 });
+  });
 
-  return { strokes, ink, full };
+  return { strokes, full };
 }
 
 /* ── assemble ── */
 
 export function createFooter(foot, { reduce, smoother }) {
-  const art = slit(foot.querySelector(".slit"), reduce);
+  const art = boxModel(foot.querySelector(".boxm"), reduce);
   const letters = lexi(foot.querySelector(".lexi"), reduce);
   const mark = iso(foot.querySelector(".iso"), reduce);
   buttons(foot, reduce);
@@ -431,11 +455,9 @@ export function createFooter(foot, { reduce, smoother }) {
     scrollTrigger: { trigger: foot, start: "top 75%" },
   });
   gsap.timeline({ scrollTrigger: { trigger: foot.querySelector(".ft__art"), start: "top 80%" } })
-    .from(art.lines, { drawSVG: 0, duration: 1.2, ease: "power2.inOut", stagger: 0.04 })
-    .from(art.sun, { scale: 0, transformOrigin: "50% 50%", duration: 1, ease: "back.out(1.8)" }, 0.3)
-    .from(art.waves, { opacity: 0, duration: 1 }, 0.8)
-    .from(art.bars, { scaleX: 0, transformOrigin: "0% 50%", duration: 0.5, stagger: 0.01 }, 1)
-    .from(art.curve, { drawSVG: 0, duration: 1.2, ease: "power2.inOut" }, 1.2);
+    .from(art.plates, { y: -140, opacity: 0, duration: 1, ease: "expo.out", stagger: 0.12 })
+    .from(art.labels, { opacity: 0, duration: 0.5, stagger: 0.03 }, 0.6)
+    .from(art.code, { opacity: 0, x: 12, duration: 0.5, stagger: 0.06 }, 0.8);
   gsap.from(mark.faces, {
     drawSVG: 0, fillOpacity: 0, duration: 1.2, ease: "power2.inOut", stagger: 0.02,
     scrollTrigger: { trigger: foot.querySelector(".ft__grid"), start: "top 85%" },
@@ -447,9 +469,5 @@ export function createFooter(foot, { reduce, smoother }) {
   gsap.from(letters.strokes, {
     drawSVG: 0, duration: 1.4, ease: "power2.inOut", stagger: { each: 0.004, from: "random" },
     scrollTrigger: { trigger: foot.querySelector(".ft__mark"), start: "top 95%" },
-  });
-  gsap.to(letters.ink, {
-    attr: { r: letters.full }, ease: "power1.in",
-    scrollTrigger: { trigger: foot.querySelector(".ft__mark"), start: "top 70%", end: "bottom bottom", scrub: 0.6 },
   });
 }
