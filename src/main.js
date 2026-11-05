@@ -38,15 +38,18 @@ function init() {
     smoother = ScrollSmoother.create({
       wrapper: "#smooth-wrapper",
       content: "#smooth-content",
-      smooth: 1.1,
+      // Lower smoothing = less input lag. 1.1s felt floaty on slower machines.
+      smooth: 0.7,
       effects: true,
       smoothTouch: false,
     });
   }
 
   // Anything that splits or duplicates DOM must happen before the layers are cloned.
-  SplitText.create(".hero .name .line", { type: "chars", charsClass: "ch" });
-  SplitText.create(".about__text p", { type: "lines", linesClass: "ln" });
+  // The h1 already carries the full name as its label, and the about paragraphs
+  // read fine as plain text, so SplitText shouldn't add aria-labels of its own.
+  SplitText.create(".hero .name .line", { type: "chars", charsClass: "ch", aria: "none" });
+  SplitText.create(".about__text p", { type: "lines", linesClass: "ln", aria: "none" });
   document.querySelectorAll(".marquee__track").forEach((t) => (t.innerHTML += t.innerHTML));
 
   document.querySelectorAll("[data-lens]").forEach((sec) => {
@@ -64,8 +67,8 @@ function init() {
   art.build();
 
   const portrait = createPortrait(document.querySelector(".hero"), {
-    sketch: "/portrait-sketch.jpg",
-    photo: "/portrait.jpg",
+    sketch: "/portrait-sketch.webp",
+    photo: "/portrait.webp",
   });
   const pWrap = document.querySelector(".human .portrait");
   pWrap.addEventListener("pointerenter", (e) => e.pointerType !== "touch" && (lens.overPortrait = true));
@@ -98,7 +101,36 @@ function init() {
   }, 250)).observe(content);
   addEventListener("load", () => ScrollTrigger.refresh());
 
-  import("./bloom.js").then(({ createBloom }) => createBloom(document.querySelector(".about"), bloomState));
+  // Project screenshots: fetched only as the Projects section approaches, so
+  // they never compete with the fonts and the hero on first load. (Native
+  // lazy-loading still pulled them in during the initial page load.)
+  const shotIO = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    shotIO.disconnect();
+    document.querySelectorAll(".shot img[data-src]").forEach((img) => {
+      img.sizes = img.dataset.sizes;
+      img.srcset = img.dataset.srcset;
+      img.src = img.dataset.src;
+    });
+  }, { rootMargin: "200% 0px" });
+  shotIO.observe(document.querySelector(".work"));
+
+  // three.js is the heaviest thing on the page: only fetch it as the About
+  // section gets close, so it never competes with the first paint.
+  //    It also gets built in idle time once the intro is over, so the setup
+  //    (and shader compile) doesn't land in the middle of someone scrolling.
+  const aboutSec = document.querySelector(".about");
+  let bloomStarted = false;
+  const loadBloom = () => {
+    if (bloomStarted) return;
+    bloomStarted = true;
+    bloomIO.disconnect();
+    import("./bloom.js").then(({ createBloom }) => createBloom(aboutSec, bloomState));
+  };
+  const bloomIO = new IntersectionObserver(([e]) => e.isIntersecting && loadBloom(), { rootMargin: "150% 0px" });
+  bloomIO.observe(aboutSec);
+  const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
+  setTimeout(() => idle(loadBloom, { timeout: 3000 }), reduce ? 500 : 6500);
 
   let lastW = innerWidth;
   addEventListener("resize", debounce(() => {
@@ -153,8 +185,24 @@ function setupLens() {
   addEventListener("pointermove", (e) => move(e.clientX, e.clientY), { passive: true });
   addEventListener("touchmove", (e) => move(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
 
-  const ease = gsap.parseEase("power2.inOut");
   const k = reduce ? 1 : 0.18;
+
+  // Performance notes for this loop, which runs every frame:
+  // - The clip is written straight onto the machine layer. Writing CSS custom
+  //   properties on the section made the browser restyle every element in it,
+  //   both copies, on every frame.
+  // - All rects are read before anything is written, so there is at most one
+  //   layout per frame instead of one per section.
+  // - A machine layer the lens isn't touching is hidden, so it isn't painted.
+  // - Sections off screen are skipped without measuring them.
+  const worlds = sections.map((sec) => ({
+    sec, layer: sec.querySelector(".layer.machine"), clip: "", shown: false, onscreen: false,
+  }));
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) worlds.find((w) => w.sec === e.target).onscreen = e.isIntersecting;
+  });
+  worlds.forEach((w) => io.observe(w.sec));
+  const ringSize = { r: -1, tx: "", op: "", brush: null };
 
   gsap.ticker.add((time) => {
     const idle = !lens.touched || (coarse && performance.now() - lens.last > 2500);
@@ -170,33 +218,39 @@ function setupLens() {
     const lensR = lens.r * (1 - lens.sup);
 
     let ringOpacity = 0;
-    const full = Math.hypot(innerWidth, innerHeight);
 
-    for (const sec of sections) {
-      const rect = sec.getBoundingClientRect();
-      if (rect.bottom < 0 || rect.top > innerHeight) continue;
-      let x = lens.x - rect.left;
-      let y = lens.y - rect.top;
-      let r = lensR;
-      const over = lens.y > rect.top && lens.y < rect.bottom;
-      if (over) ringOpacity = 1;
-      const d = ease(sec._dive || 0);
-      if (d > 0) {
-        x += (innerWidth / 2 - rect.left - x) * d;
-        y += (innerHeight / 2 - rect.top - y) * d;
-        r += (full - r) * d;
-        if (over) ringOpacity = 1 - Math.min(1, d * 3);
-      }
-      sec.style.setProperty("--x", `${x}px`);
-      sec.style.setProperty("--y", `${y}px`);
-      sec.style.setProperty("--r", `${r}px`);
+    // read
+    for (const w of worlds) {
+      w.next = null;
+      if (!w.onscreen || lensR < 0.5) continue;
+      const rect = w.sec.getBoundingClientRect();
+      const x = lens.x - rect.left;
+      const y = lens.y - rect.top;
+      if (lens.y > rect.top && lens.y < rect.bottom) ringOpacity = 1;
+      const hit = x + lensR > 0 && x - lensR < rect.width && y + lensR > 0 && y - lensR < rect.height;
+      if (hit) w.next = `circle(${lensR.toFixed(1)}px at ${x.toFixed(1)}px ${y.toFixed(1)}px)`;
     }
 
-    const r = lensR + (26 - lensR) * lens.sup;
-    ring.style.width = ring.style.height = `${r * 2}px`;
-    ring.style.transform = `translate(${lens.x - r}px, ${lens.y - r}px)`;
-    ring.style.opacity = lens.r < 2 ? 0 : ringOpacity;
-    ring.classList.toggle("ring--brush", lens.sup > 0.5);
+    // write
+    for (const w of worlds) {
+      const show = w.next !== null;
+      if (show !== w.shown) {
+        w.shown = show;
+        w.sec._lensOn = show;
+        w.layer.style.visibility = show ? "visible" : "hidden";
+      }
+      if (show && w.next !== w.clip) w.layer.style.clipPath = w.clip = w.next;
+    }
+
+    const r = Math.round(lensR + (26 - lensR) * lens.sup);
+    if (r !== ringSize.r) ring.style.width = ring.style.height = `${r * 2}px`;
+    ringSize.r = r;
+    const tx = `translate3d(${(lens.x - r).toFixed(1)}px, ${(lens.y - r).toFixed(1)}px, 0)`;
+    if (tx !== ringSize.tx) ring.style.transform = ringSize.tx = tx;
+    const op = String(lens.r < 2 ? 0 : ringOpacity);
+    if (op !== ringSize.op) ring.style.opacity = ringSize.op = op;
+    const brush = lens.sup > 0.5;
+    if (brush !== ringSize.brush) ring.classList.toggle("ring--brush", (ringSize.brush = brush));
   });
 
   addEventListener("pointerdown", () => gsap.to(lens, { r: LENS_R * 0.7, duration: 0.25, ease: "power3.out", overwrite: true }));
@@ -222,7 +276,7 @@ function intro(P, portraitReady) {
   const by = (n) => (i) => (i >> 1) * n;
   const [hChars, mChars] = pair(hero, ".ch");
   const [hFoot, mFoot] = pair(hero, ".hero__foot > *");
-  const tl = gsap.timeline({ defaults: { ease: "expo.out" }, paused: true });
+  const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
   // 1. The world grows in from both edges.
   tl.from(P.stems, { drawSVG: 0, duration: 1.5, ease: "power2.inOut", stagger: by(0.1) }, 0)
@@ -234,14 +288,18 @@ function intro(P, portraitReady) {
     .from(P.fxIn, { opacity: 0, scale: 0.5, transformOrigin: "50% 50%", duration: 0.9, stagger: by(0.04) }, 1.1);
 
   // 2. The pencil draws the portrait, then watercolour washes bloom in.
+  //    The rest of the intro doesn't wait for the photos: on a slow connection
+  //    the name still rises straight away and the drawing starts on arrival.
   portraitReady.then((p) => {
-    p.play(tl, 0.4);
-    tl.play();
+    if (tl.isActive()) p.play(tl, Math.max(0.4, tl.time()));
+    else p.play(gsap.timeline(), 0); // intro already over: draw on its own
   });
 
   // 3. The name rises, one line behind the portrait and one in front.
-  const chars = { yPercent: 115, rotate: 6, duration: 1.2, stagger: 0.035 };
-  tl.from(hChars, chars, 0.9).from(mChars, chars, 0.9);
+  //    (Started early: the name is the largest thing on screen, so it's what
+  //    Lighthouse times as the page's main content arriving.)
+  const chars = { yPercent: 115, rotate: 6, duration: 1.1, stagger: 0.03 };
+  tl.from(hChars, chars, 0.3).from(mChars, chars, 0.3);
 
   // 4. Tendril and arm reach in towards her...
   tl.from(P.reach, { drawSVG: 0, duration: 1.1, ease: "power3.inOut" }, 1.5)
@@ -275,20 +333,31 @@ function marquee() {
     spin.pause();
     return;
   }
-  ScrollTrigger.create({
+  // Scrolling speeds the loops up (and reverses them when scrolling up). One
+  // value eased on the ticker, instead of new tweens on every scroll event.
+  const all = [...loops, spin];
+  let dir = 1, target = 1, speed = 1, on = false;
+  const st = ScrollTrigger.create({
     trigger: sec,
     start: "top bottom",
     end: "bottom top",
+    onToggle: (self) => (on = self.isActive),
     onUpdate(self) {
-      const boost = 1 + Math.min(8, Math.abs(self.getVelocity()) / 250);
-      const dir = self.direction;
-      [...loops, spin].forEach((l) => {
-        gsap.to(l, {
-          timeScale: dir * boost, duration: 0.15, overwrite: true,
-          onComplete: () => gsap.to(l, { timeScale: dir, duration: 1.2, ease: "power2.out" }),
-        });
-      });
+      dir = self.direction;
+      target = dir * (1 + Math.min(8, Math.abs(self.getVelocity()) / 250));
     },
+  });
+  on = st.isActive;
+  gsap.ticker.add(() => {
+    if (!on) return;
+    target += (dir - target) * 0.04;
+    speed += (target - speed) * 0.2;
+    for (const l of all) l.timeScale(speed);
+  });
+  // keep the loops idle while off screen
+  ScrollTrigger.create({
+    trigger: sec, start: "top bottom", end: "bottom top",
+    onToggle: (self) => all.forEach((l) => l.paused(!self.isActive)),
   });
 }
 
@@ -308,7 +377,7 @@ function about() {
         start: desk ? "top top" : "top 75%",
         end: desk ? "+=110%" : "bottom 30%",
         pin: desk,
-        scrub: 1,
+        scrub: 0.4,
       },
     });
     tl.fromTo(bloomState, { open: 0.02 }, { open: 1, duration: 1, ease: "power1.inOut" }, 0)

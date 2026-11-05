@@ -1,4 +1,4 @@
-// Blueprint footer: the CSS box model drawn as an exploded axonometric,
+// Drafting footer: the CSS box model drawn as an exploded axonometric,
 // an isometric monogram, LEXI drawn as construction letters, and rolling-text
 // hover effects on every link.
 
@@ -68,7 +68,7 @@ function boxModel(svg, reduce) {
     { key: "margin", w: 300, d: 210, fill: "#e08d74", css: "margin: 32px;" },
     { key: "border", w: 236, d: 146, inset: 32, fill: "#e2b86c", css: "border: 6px solid;" },
     { key: "padding", w: 224, d: 134, inset: 6, fill: "#8c9c7f", css: "padding: 24px;" },
-    { key: "content", w: 176, d: 86, inset: 24, fill: "#6f93d6", css: "width: 176px;" },
+    { key: "content", w: 176, d: 86, inset: 24, fill: "#a8927f", css: "width: 176px;" },
   ];
   const state = { gap: 34, hover: -1 };
   const T = 7; // plate thickness

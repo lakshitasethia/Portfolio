@@ -179,7 +179,7 @@ export function createToolkit(pit, { reduce = false } = {}) {
       let a = 1;
       if (r.dying) a = now < r.dying ? 1 : 1 - (now - r.dying) / r.fade;
       if (a <= 0 || r.grow <= 0) continue;
-      ctx.strokeStyle = `rgba(227, 235, 255, ${0.7 * a})`;
+      ctx.strokeStyle = `rgba(243, 228, 210, ${0.7 * a})`;
       ctx.lineWidth = 1.4;
       const P = r.pts;
       if (r.cut < 0) {

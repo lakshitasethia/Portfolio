@@ -81,7 +81,7 @@ const EQUATIONS = [
     pts: () => polar(6.6, 4, (t) => 1.6 + 0.22 * Math.cos(12 * t), 0, TAU, 600),
   },
   {
-    color: "#2b3f7c", fill: "#a9c1ec",
+    color: "#3d3029", fill: "#c9b6a4",
     html: "<i>r</i> = <i>e</i><sup>sin <i>θ</i></sup> − 2 cos 4<i>θ</i> + sin<sup>5</sup>(<sup>2<i>θ</i> − π</sup>⁄<sub>24</sub>)",
     note: "Fay's butterfly, scaled by 0.42",
     pts: () =>

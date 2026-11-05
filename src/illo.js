@@ -1,7 +1,7 @@
 // Generative hero illustration: a watercolour garden on the left (paper),
-// a cyanotype constellation on the right (machine), reaching for each other.
+// an ink-and-graphite constellation on the right (machine), reaching for each other.
 // Everything is drawn twice — once into the human layer, once into the
-// machine layer — so the lens shows the same picture as a blueprint.
+// machine layer — so the lens shows the same picture as linework.
 
 import gsap from "gsap";
 
@@ -10,7 +10,8 @@ const C = {
   coral: "#c9624a", coral2: "#e08d74", blush: "#efb39f", sang: "#9e452a",
   gold: "#cf9844", gold2: "#e2b86c",
   sage: "#66785f", sage2: "#8c9c7f", sage3: "#4f6149",
-  blue: "#3d69bd", blue2: "#6f93d6", blue3: "#a9c1ec", indigo: "#2b3f7c", pale: "#dbe5f7",
+  // the machine side is drawn in graphite and ink, with gold for the live parts
+  blue: "#5e4b3f", blue2: "#8a7566", blue3: "#c9b6a4", indigo: "#2a201b", pale: "#f3e8dc",
 };
 
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;

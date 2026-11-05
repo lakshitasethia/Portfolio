@@ -2,9 +2,9 @@
 // 1. The pencil sketch draws itself: every connected line is revealed along
 //    its own length, starting at the face and radiating outwards.
 // 2. Watercolour washes bloom in, using the photo re-mapped to the site's
-//    palette (indigo hair, sanguine shirt, warm skin), with darker rims.
+//    palette (umber hair, sanguine shirt, warm skin), with darker rims.
 // 3. The cursor paints the real photo colours on top, which dry back.
-// The machine layer gets the same lines as white blueprint linework.
+// The machine layer gets the same lines as chalk linework.
 
 import gsap from "gsap";
 
@@ -18,9 +18,9 @@ const load = (src) =>
 
 // luminance → palette ramp
 const RAMP = [
-  [0.0, [31, 42, 85]],     // deep indigo
-  [0.2, [43, 63, 124]],    // indigo
-  [0.36, [110, 58, 70]],   // plum
+  [0.0, [36, 25, 21]],     // deep umber
+  [0.2, [68, 41, 33]],     // burnt umber
+  [0.36, [112, 56, 48]],   // caput mortuum
   [0.5, [158, 69, 42]],    // sanguine
   [0.64, [201, 98, 74]],   // coral
   [0.78, [224, 151, 116]], // peach

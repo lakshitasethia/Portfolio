@@ -2,15 +2,30 @@
 // wireframe in the machine layer, so the cursor lens shows its mesh.
 // `state.open` (0–1) and `state.spin` are driven by ScrollTrigger in main.js.
 
-import * as THREE from "three";
+import gsap from "gsap";
+import {
+  WebGLRenderer, Scene, PerspectiveCamera, HemisphereLight, DirectionalLight, Group,
+  MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Color, Float32BufferAttribute,
+  Mesh, InstancedMesh, SphereGeometry, Matrix4, CylinderGeometry, DoubleSide, SRGBColorSpace,
+} from "three";
+
+const THREE = {
+  WebGLRenderer, Scene, PerspectiveCamera, HemisphereLight, DirectionalLight, Group,
+  MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Color, Float32BufferAttribute,
+  Mesh, InstancedMesh, SphereGeometry, Matrix4, CylinderGeometry, DoubleSide, SRGBColorSpace,
+};
 
 export function createBloom(section, state) {
   const stages = [...section.querySelectorAll(".about__stage")]; // [human, machine]
-  const renderers = stages.map((stage) => {
+  // Two WebGL canvases (solid + wireframe) at retina resolution was the most
+  // expensive thing on the page. Cap the pixel ratio and only antialias the
+  // solid one; the wireframe only shows inside the lens anyway.
+  const dpr = Math.min(devicePixelRatio, 1.5);
+  const renderers = stages.map((stage, i) => {
     const canvas = document.createElement("canvas");
     stage.appendChild(canvas);
-    const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    r.setPixelRatio(Math.min(devicePixelRatio, 2));
+    const r = new THREE.WebGLRenderer({ canvas, antialias: i === 0, alpha: true, powerPreference: "high-performance" });
+    r.setPixelRatio(i === 0 ? dpr : Math.min(dpr, 1.25));
     r.outputColorSpace = THREE.SRGBColorSpace;
     return r;
   });
@@ -24,7 +39,7 @@ export function createBloom(section, state) {
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
   key.position.set(3, 6, 4);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0x8fb0e6, 1.4);
+  const rim = new THREE.DirectionalLight(0xf0c89a, 1.2);
   rim.position.set(-4, 2, -3);
   scene.add(rim);
 
@@ -32,7 +47,7 @@ export function createBloom(section, state) {
   scene.add(flower);
 
   const solid = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 0.82 });
-  const wire = new THREE.MeshBasicMaterial({ color: 0xe3ebff, wireframe: true, transparent: true, opacity: 0.6 });
+  const wire = new THREE.MeshBasicMaterial({ color: 0xf3e4d2, wireframe: true, transparent: true, opacity: 0.6 });
 
   function petalGeo(len, wid, cup, baseHex, tipHex) {
     const g = new THREE.PlaneGeometry(wid, len, 10, 14);
@@ -126,6 +141,12 @@ export function createBloom(section, state) {
   new ResizeObserver(resize).observe(stages[0]);
   resize();
 
+  // Compile both shader variants now rather than on the first visible frame.
+  renderers[0].compile(scene, camera);
+  scene.overrideMaterial = wire;
+  renderers[1].compile(scene, camera);
+  scene.overrideMaterial = null;
+
   let visible = false;
   new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(section);
 
@@ -133,13 +154,11 @@ export function createBloom(section, state) {
   let open = state.open;
   let tiltX = 0;
   let tiltZ = 0;
-  const clock = new THREE.Clock();
+  let wireDrawn = false;
 
-  function frame() {
-    requestAnimationFrame(frame);
+  gsap.ticker.add((t) => {
     if (!visible) return;
-    const t = clock.getElapsedTime();
-    open += (state.open - open) * 0.12;
+    open += (state.open - open) * 0.25;
     for (const p of petals) {
       const lo = Math.min(1, Math.max(0, (open - p.delay) / (1 - p.delay)));
       p.mesh.rotation.x = p.closed + (p.open - p.closed) * ease(lo) + Math.sin(t * 1.3 + p.phase) * 0.02;
@@ -153,8 +172,14 @@ export function createBloom(section, state) {
 
     scene.overrideMaterial = null;
     renderers[0].render(scene, camera);
-    scene.overrideMaterial = wire;
-    renderers[1].render(scene, camera);
-  }
-  frame();
+    // The wireframe copy is only seen through the lens; skip it otherwise.
+    if (section._lensOn) {
+      scene.overrideMaterial = wire;
+      renderers[1].render(scene, camera);
+      wireDrawn = true;
+    } else if (wireDrawn) {
+      renderers[1].clear();
+      wireDrawn = false;
+    }
+  });
 }
